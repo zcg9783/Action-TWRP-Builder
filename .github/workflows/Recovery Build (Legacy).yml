@@ -117,15 +117,7 @@ jobs:
     - name: Repo Sync
       run: |
         repo sync -j$(nproc --all) --force-sync
-      working-directory: workspace
-
-    - name: Patch adbd_auth_verify
-      run: |
-        sed -i '/^int adb_auth_verify(/,/^}/ {
-          s/return [^;]*;/return 1;/g
-        }' system/core/adb/adb_auth_client.c
-      working-directory: ${{ steps.pwd.outputs.workspace-folder }}
-      
+      working-directory: workspace      
 
     - name: Clone device tree
       run: |
