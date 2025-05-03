@@ -10,19 +10,19 @@ on:
       MANIFEST_BRANCH:
         description: 'MANIFEST_BRANCH'
         required: true
-        default: 'twrp-7.1'
-      DEVICE_TREE_ZIP_URL:
-        description: 'DEVICE_TREE_ZIP_URL'
+        default: 'twrp-9.0'
+      DEVICE_TREE_URL:
+        description: 'DEVICE_TREE_URL'
         required: true
-        default: 'https://github.com/ZH-XiJun/twrp_device_xtc_msm8909w'
+        default: 'https://vip.123pan.cn/1814215835/20024475'
       DEVICE_TREE_BRANCH:
         description: 'DEVICE_TREE_BRANCH'
         required: true
-        default: 'twrp-7.1'
+        default: 'twrp-9.0'
       DEVICE_PATH:
         description: 'DEVICE_PATH'
         required: true
-        default: 'device/xtc/msm8909w'
+        default: 'device/xtc/msm8937_32go_nd01'
       COMMON_TREE_URL:
         description: 'COMMON_TREE_URL (if no common tree, leave blank)'
         required: false
@@ -32,11 +32,11 @@ on:
       DEVICE_NAME:
         description: 'DEVICE_NAME'
         required: true
-        default: 'msm8909w'
+        default: 'msm8937_32go_nd01'
       MAKEFILE_NAME:
         description: 'MAKEFILE_NAME'
         required: true
-        default: 'omni_msm8909w'
+        default: 'omni_msm8937_32go_nd01'
       BUILD_TARGET:
         description: 'BUILD_TARGET'
         required: true
@@ -72,12 +72,13 @@ jobs:
       run: |
         sudo apt update && sudo apt upgrade -y
         DEBIAN_FRONTEND=noninteractive sudo apt install -yq \
+            unzip \
             linux-modules-extra-$(uname -r) \
             gperf gcc-multilib gcc-10-multilib g++-multilib g++-10-multilib \
             libc6-dev lib32ncurses5-dev x11proto-core-dev libx11-dev tree lib32z-dev libgl1-mesa-dev libxml2-utils \
             xsltproc bc ccache lib32readline-dev lib32z1-dev liblz4-tool libncurses5-dev libsdl1.2-dev \
             libwxgtk3.0-gtk3-dev libxml2 lzop pngcrush schedtool squashfs-tools \
-            imagemagick libbz2-dev lzma ncftp qemu-user-static libstdc++-10-dev libncurses5 python3 tar unzip wget
+            imagemagick libbz2-dev lzma ncftp qemu-user-static libstdc++-10-dev libncurses5 python3 tar
 
     - name: Install Specific Java Version
       uses: actions/setup-java@v4
@@ -117,10 +118,12 @@ jobs:
         repo sync -j$(nproc --all) --force-sync
       working-directory: workspace
 
-    - name: Clone device tree
+    - name: Download and Extract Device Tree
       run: |
-        wget -O tree.zip "${{ github.event.inputs.DEVICE_TREE_ZIP_URL }}"
-        unzip -d ${{ github.event.inputs.DEVICE_PATH }}
+        mkdir -p ./${{ github.event.inputs.DEVICE_PATH }}
+        curl -L -o device_tree.zip ${{ github.event.inputs.DEVICE_TREE_URL }}
+        unzip -o device_tree.zip -d ./${{ github.event.inputs.DEVICE_PATH }}
+        rm device_tree.zip
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
 
     - name: Clone common tree
